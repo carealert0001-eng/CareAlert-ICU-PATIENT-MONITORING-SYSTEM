@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ICU Patient Dashboard | CareAlert</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="logo-text">
+                    <div class="logo-title">CareAlert</div>
+                    <div class="logo-subtitle">ICU Monitoring</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-menu">
+            <a href="#" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span>Patients</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-heartbeat"></i>
+                <span>Vitals</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Analytics</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+                <span class="badge">3</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="user-info">
+                    <strong>Dr. Dhimas Yusuf</strong>
+                    <span>ICU Specialist</span>
+                </div>
+            </div>
+            <a href="{{ url_for('about_page') }}" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1>ICU Patient Monitoring Dashboard</h1>
+                <div class="breadcrumb">
+                    <span>Dashboard</span> / <span>ICU Patient Monitoring</span>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="time-display">
+                    <i class="far fa-clock"></i>
+                    <span id="currentTime">00:00:00</span>
+                </div>
+                <div class="last-updated">
+                    Last updated: <span id="lastUpdate">Just now</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Patient Summary Card -->
+        <div class="patient-summary-card animate__animated animate__fadeIn">
+            <div class="patient-info">
+                <div class="patient-avatar">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <div class="patient-details">
+                    <h3>John Doe</h3>
+                    <div class="patient-meta">
+                        <span><i class="fas fa-bed"></i> ICU-04</span>
+                        <span><i class="fas fa-id-card"></i> MR-123456</span>
+                        <span><i class="fas fa-calendar-alt"></i> 48 y/o</span>
+                        <span><i class="fas fa-venus-mars"></i> Male</span>
+                    </div>
+                </div>
+                <div class="patient-status">
+                    <div class="status-badge critical">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Critical Condition
+                    </div>
+                    <div class="admission-time">
+                        <i class="far fa-calendar"></i>
+                        Admitted: 3 days ago
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vital Signs Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card heart-rate animate__animated animate__fadeInUp">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="metric-trend up">
+                        <i class="fas fa-arrow-up"></i> 2.5%
+                    </div>
+                </div>
+                <div class="metric-value" id="hrValue">--</div>
+                <div class="metric-label">Heart Rate</div>
+                <div class="metric-footer">
+                    <span class="unit">BPM</span>
+                    <span class="range">Normal: 60-100</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%"></div>
+                </div>
+            </div>
+
+            <div class="metric-card oxygen animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-lungs"></i>
+                    </div>
+                    <div class="metric-trend down">
+                        <i class="fas fa-arrow-down"></i> 1.2%
+                    </div>
+                </div>
+                <div class="metric-value" id="spo2Value">--</div>
+                <div class="metric-label">Oxygen Saturation</div>
+                <div class="metric-footer">
+                    <span class="unit">%</span>
+                    <span class="range">Normal: 95-100%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 88%"></div>
+                </div>
+            </div>
+
+            <div class="metric-card temperature animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <div class="metric-trend stable">
+                        <i class="fas fa-minus"></i> Stable
+                    </div>
+                </div>
+                <div class="metric-value" id="tempValue">--</div>
+                <div class="metric-label">Body Temperature</div>
+                <div class="metric-footer">
+                    <span class="unit">°C</span>
+                    <span class="range">Normal: 36.5-37.5</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%"></div>
+                </div>
+            </div>
+
+            <div class="metric-card risk animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+                <div class="metric-header">
+                    <div class="metric-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="metric-trend up">
+                        <i class="fas fa-arrow-up"></i> 15%
+                    </div>
+                </div>
+                <div class="metric-value" id="riskValue">HIGH</div>
+                <div class="metric-label">Risk Assessment</div>
+                <div class="metric-footer">
+                    <span class="status critical">Critical</span>
+                    <span class="last-assessed">Just now</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill critical" style="width: 85%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-container">
+            <div class="chart-card large">
+                <div class="chart-header">
+                    <h3><i class="fas fa-heartbeat" style="color: #ef4444;"></i> Heart Rate Monitor (Last 24 Hours)</h3>
+                    <div class="chart-controls">
+                        <button class="time-btn active">24H</button>
+                        <button class="time-btn">7D</button>
+                        <button class="time-btn">30D</button>
+                    </div>
+                </div>
+                <canvas id="hrChart"></canvas>
+            </div>
+
+            <div class="chart-card large">
+                <div class="chart-header">
+                    <h3><i class="fas fa-lungs" style="color: #0ea5e9;"></i> Oxygen Level Trends</h3>
+                    <div class="chart-controls">
+                        <button class="time-btn active">24H</button>
+                        <button class="time-btn">7D</button>
+                        <button class="time-btn">30D</button>
+                    </div>
+                </div>
+                <canvas id="spo2Chart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-thermometer-half" style="color: #f59e0b;"></i> Temperature History</h3>
+                </div>
+                <canvas id="tempChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie" style="color: #10b981;"></i> Vital Distribution</h3>
+                </div>
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Alerts and Notifications -->
+        <div class="alerts-section">
+            <div class="alerts-container">
+                <div class="section-header">
+                    <h3><i class="fas fa-bell" style="color: #ef4444;"></i> Critical Alerts</h3>
+                    <span class="badge critical">3 Active</span>
+                </div>
+                <div id="alertsList">
+                    <!-- Alerts will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="quick-stats">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-bar" style="color: #0ea5e9;"></i> Quick Stats</h3>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">12.4</div>
+                        <div class="stat-label">Avg. Heart Rate Var.</div>
+                        <div class="stat-trend up">↑ 1.2%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">96.2%</div>
+                        <div class="stat-label">Oxygen Stability</div>
+                        <div class="stat-trend down">↓ 0.8%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Active Alerts</div>
+                        <div class="stat-trend up">↑ 2</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Monitoring</div>
+                        <div class="stat-trend stable">● Stable</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <div class="section-header">
+                <h3><i class="fas fa-history" style="color: #8b5cf6;"></i> Recent Activity</h3>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Vitals Checked</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Oxygen Level Alert</div>
+                        <div class="activity-time">15 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon info">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Medication Administered</div>
+                        <div class="activity-time">1 hour ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">Doctor Review</div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Quick Action Button -->
+    <button class="quick-action-btn" id="emergencyBtn">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- External JS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

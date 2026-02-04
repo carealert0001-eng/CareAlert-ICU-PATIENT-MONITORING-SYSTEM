@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CareAlert | ICU Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-gradient@latest/dist/chartjs-plugin-gradient.min.js"></script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --primary-light: #e0f2fe;
+            --secondary: #9370DB; /* Light purple */
+
+            --success: #059669;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --light-bg: #f8fbff;
+            --white: #ffffff;
+            --text-dark: #0f172a;
+            --text-light: #64748b;
+            --border: #cbd5e1;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--light-bg);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Elements */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.05;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+        }
+
+        /* ================= NAVBAR ================= */
+        header {
+            background: var(--white);
+            padding: 16px 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-bottom: 3px solid var(--primary-light);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .logo-icon::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: rotate 3s linear infinite;
+        }
+
+        .logo-icon i {
+            font-size: 24px;
+            color: var(--white);
+            z-index: 1;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .logo-title {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .doctor-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .doctor-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(14, 165, 233, 0.2);
+        }
+
+        .doctor-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+        }
+
+        .doctor-details h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .doctor-details p {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4);
+        }
+
+        .logout-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* ================= LOGOUT CONFIRMATION MODAL ================= */
+        .logout-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .logout-modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            animation: slideUp 0.4s ease;
+            border: 2px solid rgba(14, 165, 233, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .logout-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 36px;
+            color: var(--white);
+            box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4);
+        }
+
+        .logout-modal h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logout-modal p {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .logout-modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 140px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-btn-yes {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+        }
+
+        .modal-btn-yes:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(14, 165, 233, 0.4);
+        }
+
+        .modal-btn-no {
+            background: var(--primary-light);
+            color: var(--text-dark);
+        }
+
+        .modal-btn-no:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(14, 165, 233, 0.2);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ================= MAIN CONTAINER ================= */
+        .container {
+            max-width: 1600px;
+            margin: 30px auto;
+            padding: 0 30px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= PATIENT HERO SECTION ================= */
+        .patient-hero {
+            background: linear-gradient(135deg, var(--primary-light), rgba(224, 242, 254, 0.8));
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(14, 165, 233, 0.15);
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+
+        .patient-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.5;
+        }
+
+        .patient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .patient-main {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .patient-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+            box-shadow: 0 15px 30px rgba(14, 165, 233, 0.4);
+            border: 4px solid var(--white);
+            animation: pulseAvatar 3s infinite;
+        }
+
+        @keyframes pulseAvatar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .patient-info h1 {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .patient-info p {
+            font-size: 16px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .patient-status {
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-badge {
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .status-stable {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: var(--white);
+        }
+
+        .status-monitoring {
+            background: linear-gradient(135deg, var(--warning), #b45309);
+            color: var(--white);
+        }
+
+        /* ================= REAL-TIME VITALS ================= */
+        .vitals-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            font-size: 32px;
+        }
+
+        .live-indicator {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: var(--white);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 15px rgba(14, 165, 233, 0.3);
+            animation: pulseLive 2s infinite;
+        }
+
+        @keyframes pulseLive {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .vital-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 30px var(--shadow);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+
+        .vital-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .vital-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2);
+        }
+
+        .vital-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--white);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vital-icon::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .heart-icon {
+            background: linear-gradient(135deg, #ef4444, var(--danger));
+        }
+
+        .oxygen-icon {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .temp-icon {
+            background: linear-gradient(135deg, #f59e0b, var(--warning));
+        }
+
+        .vital-value {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 15px 0;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .heart-value {
+            color: var(--danger);
+            text-shadow: 0 5px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .oxygen-value {
+            color: var(--primary);
+            text-shadow: 0 5px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .temp-value {
+            color: var(--warning);
+            text-shadow: 0 5px 15px rgba(217, 119, 6, 0.3);
+        }
+
+        .vital-label {
+            font-size: 16px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vital-status {
+            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-normal {
+            background: linear-gradient(135deg, #10b981, var(--success));
+            color: var(--white);
+        }
+
+        .status-warning {
+            background: linear-gradient(135deg, #f59e0b, var(--warning));
+            color: var(--white);
+        }
+
+        .status-critical {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: var(--white);
+            animation: pulseCritical 1.5s infinite;
+        }
+
+        @keyframes pulseCritical {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ================= GRAPHS SECTION ================= */
+        .graphs-section {
+            margin-bottom: 40px;
+        }
+
+        .graphs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .graph-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+
+        .graph-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 45px rgba(14, 165, 233, 0.15);
+        }
+
+        .graph-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .graph-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .graph-title i {
+            color: var(--primary);
+            font-size: 22px;
+        }
+
+        .graph-time {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 500;
+            background: var(--primary-light);
+            padding: 6px 15px;
+            border-radius: 20px;
+        }
+
+        .graph-canvas {
+            height: 250px;
+            position: relative;
+        }
+
+        /* ================= MONITORING LOG ================= */
+        .log-section {
+            margin-bottom: 60px;
+        }
+
+        .log-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px var(--shadow);
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+
+        .log-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            background: linear-gradient(135deg, var(--primary-light), rgba(14, 165, 233, 0.1));
+            padding: 25px 30px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 15px;
+            border-bottom: 2px solid rgba(14, 165, 233, 0.2);
+        }
+
+        .log-entries {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            padding: 22px 30px;
+            border-bottom: 1px solid rgba(203, 213, 225, 0.3);
+            font-size: 15px;
+            transition: all 0.2s ease;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .log-entry:hover {
+            background: rgba(14, 165, 233, 0.05);
+        }
+
+        .log-entry:nth-child(even) {
+            background: rgba(248, 251, 255, 0.5);
+        }
+
+        /* ================= RESPONSIVE DESIGN ================= */
+        @media (max-width: 1400px) {
+            .vitals-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .graphs-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            header {
+                padding: 16px 30px;
+            }
+            
+            .container {
+                padding: 0 20px;
+            }
+            
+            .patient-hero {
+                padding: 30px;
+            }
+            
+            .patient-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .logout-modal-buttons {
+                flex-direction: column;
+            }
+            
+            .modal-btn {
+                width: 100%;
+            }
+            
+            .vitals-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .graphs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-right {
+                flex-direction: column;
+                gap: 15px;
+                width: 100%;
+            }
+            
+            .doctor-info {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .logout-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .vitals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .graphs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .log-header,
+            .log-entry {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                font-size: 13px;
+                padding: 18px 20px;
+            }
+            
+            .vital-value {
+                font-size: 40px;
+            }
+            
+            .patient-info h1 {
+                font-size: 28px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .logout-modal {
+                padding: 30px 20px;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .log-header,
+            .log-entry {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .log-header div {
+                font-size: 12px;
+                padding: 5px;
+            }
+            
+            .log-entry div {
+                padding: 5px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--primary-light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, var(--primary-dark), var(--secondary));
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="bg-animation" id="bgAnimation"></div>
+
+<!-- Logout Confirmation Modal -->
+<div class="logout-modal-overlay" id="logoutModal">
+    <div class="logout-modal">
+        <div class="logout-modal-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <h3>Confirm Logout</h3>
+        <p>Are you sure you want to log out? You will be redirected to the home page.</p>
+        <div class="logout-modal-buttons">
+            <button class="modal-btn modal-btn-yes" onclick="confirmLogout()">
+                <i class="fas fa-check"></i> Yes, Logout
+            </button>
+            <button class="modal-btn modal-btn-no" onclick="cancelLogout()">
+                <i class="fas fa-times"></i> No, Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= NAVBAR ================= -->
+<header>
+    <div class="logo-container">
+        <div class="logo-icon">
+            <i class="fas fa-heartbeat"></i>
+        </div>
+        <div class="logo-text">
+            <div class="logo-title">CareAlert</div>
+            <div class="logo-subtitle">Intelligent ICU Monitoring</div>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="doctor-info">
+            <div class="doctor-avatar">DW</div>
+            <div class="doctor-details">
+                <h4>Dr. David Wilson</h4>
+                <p>ICU Chief Specialist</p>
+            </div>
+        </div>
+        <button class="logout-btn" onclick="showLogoutConfirmation()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</header>
+
+<!-- ================= MAIN CONTAINER ================= -->
+<div class="container">
+    
+    <!-- Patient Hero Section -->
+    <section class="patient-hero">
+        <div class="patient-header">
+            <div class="patient-main">
+                <div class="patient-avatar">LW</div>
+                <div class="patient-info">
+                    <h1>Luke Wilson</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Real-time Vitals Monitoring -->
+    <section class="vitals-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-heartbeat"></i>
+                Real-time Vitals Monitoring
+            </h2>
+            <div class="live-indicator">
+                <i class="fas fa-circle fa-pulse"></i>
+                LIVE • Updating every 2 seconds
+            </div>
+        </div>
+        
+        <div class="vitals-grid">
+            <!-- Heart Rate Card -->
+            <div class="vital-card">
+                <div class="vital-icon heart-icon">
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+                <div class="vital-value heart-value" id="heartRateValue">--</div>
+                <div class="vital-label">Heart Rate</div>
+                <div class="vital-status status-normal" id="heartRateStatus">
+                    <i class="fas fa-check-circle"></i> Normal
+                </div>
+            </div>
+            
+            <!-- Oxygen Level Card -->
+            <div class="vital-card">
+                <div class="vital-icon oxygen-icon">
+                    <i class="fas fa-lungs"></i>
+                </div>
+                <div class="vital-value oxygen-value" id="oxygenValue">--</div>
+                <div class="vital-label">Oxygen Level</div>
+                <div class="vital-status status-normal" id="oxygenStatus">
+                    <i class="fas fa-check-circle"></i> Normal
+                </div>
+            </div>
+            
+            <!-- Temperature Card -->
+            <div class="vital-card">
+                <div class="vital-icon temp-icon">
+                    <i class="fas fa-thermometer-half"></i>
+                </div>
+                <div class="vital-value temp-value" id="temperatureValue">--</div>
+                <div class="vital-label">Temperature</div>
+                <div class="vital-status status-normal" id="temperatureStatus">
+                    <i class="fas fa-check-circle"></i> Normal
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Graphs Section -->
+    <section class="graphs-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                Vital Signs Trends
+            </h2>
+            <div class="live-indicator">
+                <i class="fas fa-history"></i>
+                Last 30 seconds • Auto-updating
+            </div>
+        </div>
+        
+        <div class="graphs-grid">
+            <div class="graph-container">
+                <div class="graph-header">
+                    <div class="graph-title">
+                        <i class="fas fa-heartbeat" style="color: #dc2626;"></i>
+                        Heart Rate
+                    </div>
+                    <div class="graph-time">Real-time</div>
+                </div>
+                <div class="graph-canvas">
+                    <canvas id="heartRateChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="graph-container">
+                <div class="graph-header">
+                    <div class="graph-title">
+                        <i class="fas fa-lungs" style="color: #0ea5e9;"></i>
+                        Oxygen Level
+                    </div>
+                    <div class="graph-time">Real-time</div>
+                </div>
+                <div class="graph-canvas">
+                    <canvas id="oxygenChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="graph-container">
+                <div class="graph-header">
+                    <div class="graph-title">
+                        <i class="fas fa-thermometer-half" style="color: #d97706;"></i>
+                        Temperature
+                    </div>
+                    <div class="graph-time">Real-time</div>
+                </div>
+                <div class="graph-canvas">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Continuous Monitoring Log -->
+    <section class="log-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-history"></i>
+                Continuous Monitoring Log
+            </h2>
+            <div class="live-indicator">
+                <i class="fas fa-database"></i>
+                Latest readings every 2 seconds
+            </div>
+        </div>
+        
+        <div class="log-container">
+            <div class="log-header">
+                <div>Timestamp</div>
+                <div>Heart Rate (BPM)</div>
+                <div>Oxygen (%)</div>
+                <div>Temperature (°F)</div>
+            </div>
+            <div class="log-entries" id="logEntries">
+                <!-- Log entries will be added dynamically -->
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+/* ================= BACKGROUND ================= */
+function createBackgroundParticles() {
+    const bgAnimation = document.getElementById('bgAnimation');
+    const colors = ['#0ea5e9', '#0284c7', '#2563eb', '#7c3aed'];
+
+    for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.width = p.style.height = `${Math.random()*100+50}px`;
+        p.style.left = `${Math.random()*100}%`;
+        p.style.top = `${Math.random()*100}%`;
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.opacity = Math.random()*0.05 + 0.02;
+        p.style.animationDuration = `${Math.random()*30+20}s`;
+        bgAnimation.appendChild(p);
+    }
+}
+
+/* ================= GLOBAL VARIABLES ================= */
+let timeData = [];
+let heartRateData = [];
+let oxygenData = [];
+let temperatureData = [];
+let logCount = 0;
+
+let heartRateChart, oxygenChart, temperatureChart;
+
+/* ================= LOGOUT ================= */
+function showLogoutConfirmation() {
+    document.getElementById('logoutModal').style.display = 'flex';
+}
+function cancelLogout() {
+    document.getElementById('logoutModal').style.display = 'none';
+}
+function confirmLogout() {
+    window.location.href = "/";
+}
+
+/* ================= CHART INIT ================= */
+function initializeCharts() {
+
+    const emptyData = {
+        labels: [],
+        datasets: [{
+            data: [],
+            borderWidth: 3,
+            fill: true,
+            tension: 0.5
+        }]
+    };
+
+    heartRateChart = new Chart(
+        document.getElementById('heartRateChart'),
+        {
+            type: 'line',
+            data: JSON.parse(JSON.stringify(emptyData)),
+            options: { responsive:true, maintainAspectRatio:false }
+        }
+    );
+
+    oxygenChart = new Chart(
+        document.getElementById('oxygenChart'),
+        {
+            type: 'line',
+            data: JSON.parse(JSON.stringify(emptyData)),
+            options: { responsive:true, maintainAspectRatio:false }
+        }
+    );
+
+    temperatureChart = new Chart(
+        document.getElementById('temperatureChart'),
+        {
+            type: 'line',
+            data: JSON.parse(JSON.stringify(emptyData)),
+            options: { responsive:true, maintainAspectRatio:false }
+        }
+    );
+}
+
+/* ================= FETCH REAL BLYNK DATA ================= */
+async function fetchVitals() {
+    try {
+        const res = await fetch("/api/data");
+        const data = await res.json();
+
+        const hr = Number(data.heart_rate);
+        const ox = Number(data.spo2);
+        const temp = Number(data.temperature);
+
+        const now = new Date().toLocaleTimeString();
+
+        timeData.push(now);
+        heartRateData.push(hr);
+        oxygenData.push(ox);
+        temperatureData.push(temp);
+
+        if (timeData.length > 15) {
+            timeData.shift();
+            heartRateData.shift();
+            oxygenData.shift();
+            temperatureData.shift();
+        }
+
+        updateChart(heartRateChart, timeData, heartRateData);
+        updateChart(oxygenChart, timeData, oxygenData);
+        updateChart(temperatureChart, timeData, temperatureData);
+
+        animateValueChange("heartRateValue", hr);
+        animateValueChange("oxygenValue", ox + "%");
+        animateValueChange("temperatureValue", temp + "°C");
+
+        updateStatusIndicators(hr, ox, temp);
+        addLogEntry(hr, ox, temp);
+
+    } catch (err) {
+        console.error("Blynk Error:", err);
+    }
+}
+
+/* ================= HELPERS ================= */
+function updateChart(chart, labels, values) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = values;
+    chart.update("none");
+}
+
+function animateValueChange(id, value) {
+    const el = document.getElementById(id);
+    el.textContent = value;
+}
+
+function updateStatusIndicators(hr, ox, temp) {
+    setStatus(
+        "heartRateStatus",
+        hr < 60 || hr > 100 ? "critical" : "normal"
+    );
+    setStatus(
+        "oxygenStatus",
+        ox < 94 ? "warning" : "normal"
+    );
+    setStatus(
+        "temperatureStatus",
+        temp < 97 || temp > 100.4 ? "warning" : "normal"
+    );
+}
+
+function setStatus(id, type) {
+    const el = document.getElementById(id);
+    el.className = `vital-status status-${type}`;
+}
+
+function addLogEntry(hr, ox, temp) {
+    const log = document.getElementById("logEntries");
+    const row = document.createElement("div");
+    row.className = "log-entry";
+    row.innerHTML = `
+        <div>${new Date().toLocaleTimeString()}</div>
+        <div>${hr}</div>
+        <div>${ox}%</div>
+        <div>${temp}°C</div>
+    `;
+    log.prepend(row);
+    if (++logCount > 20) log.removeChild(log.lastChild);
+}
+
+/* ================= START ================= */
+window.addEventListener("DOMContentLoaded", () => {
+    createBackgroundParticles();
+    initializeCharts();
+    fetchVitals();
+    setInterval(fetchVitals, 3000); // REAL-TIME
+});
+</script>
+
+</body>
+</html>

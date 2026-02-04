@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAREALERT | Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Font Awesome for heartbeat icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-light: #6BC4FA;
+            --primary: #19A6FA;
+            --primary-dark: #0d8ae3;
+            --secondary: #9370DB; /* Light purple */
+            --accent: #FF9800;
+            --light: #F7F9FC;
+            --dark: #1A237E;
+            --gray: #546E7A;
+            --violet-light: #b19cd9;
+            --doctor-color: #19A6FA;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)), 
+                        url('https://media.istockphoto.com/id/2200458339/vector/geometric-haxagon-light-medical-background-technology-medical-design-background-of-hexagon.jpg?s=612x612&w=0&k=20&c=cHIvdb07L8bYx9aMk56Zz1x160gkurrI7Vfg0li9kPQ=');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        /* Floating animated elements in background */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(107, 196, 250, 0.15) 0%, rgba(147, 112, 219, 0.08) 70%);
+            animation: float 20s infinite linear;
+        }
+        
+        .floating-element:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-element:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: -5s;
+            animation-duration: 25s;
+        }
+        
+        .floating-element:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: -10s;
+            animation-duration: 18s;
+        }
+        
+        .floating-element:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            right: 20%;
+            animation-delay: -15s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(20px, 30px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 60px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-20px, 30px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+        
+        .register-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(25, 118, 210, 0.2);
+            width: 100%;
+            max-width: 550px;
+            padding: 50px 40px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            animation: fadeInUp 0.8s ease-out forwards;
+            z-index: 10;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .register-container:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 60px rgba(25, 118, 210, 0.3), 0 0 0 1px rgba(147, 112, 219, 0.1);
+        }
+        
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--violet-light), var(--secondary));
+            background-size: 200% 100%;
+            animation: gradient-shift 3s ease infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: logoPulse 3s infinite ease-in-out;
+        }
+        
+        @keyframes logoPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .logo .heartbeat-icon {
+            color: var(--primary);
+            font-size: 52px;
+            margin-bottom: 10px;
+            display: block;
+            text-shadow: 0 4px 8px rgba(107, 196, 250, 0.3);
+            animation: heartbeat 1.5s infinite;
+        }
+        
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+            5% {
+                transform: scale(1.1);
+            }
+            10% {
+                transform: scale(1);
+            }
+            15% {
+                transform: scale(1.1);
+            }
+            20% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .logo h1 {
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 34px;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: block;
+        }
+        
+        .logo p {
+            color: var(--gray);
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 0;
+            position: relative;
+            display: block;
+            letter-spacing: 0.3px;
+        }
+        
+        .logo p::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        .role-indicator {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(25, 166, 250, 0.1), rgba(147, 112, 219, 0.05));
+            font-weight: 600;
+            color: var(--primary);
+            border: 2px solid rgba(25, 166, 250, 0.2);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(25, 166, 250, 0.1);
+        }
+        
+        .register-form .input-group {
+            margin-bottom: 20px;
+            position: relative;
+            animation: slideIn 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .register-form .input-group:nth-child(1) { animation-delay: 0.3s; }
+        .register-form .input-group:nth-child(2) { animation-delay: 0.4s; }
+        .register-form .input-group:nth-child(3) { animation-delay: 0.5s; }
+        .register-form .input-group:nth-child(4) { animation-delay: 0.6s; }
+        .register-form .input-group:nth-child(5) { animation-delay: 0.7s; }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .register-form .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 15px;
+        }
+        
+        .register-form .input-group input,
+        .register-form .input-group select {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: var(--light);
+        }
+        
+        .register-form .input-group select {
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .register-form .input-group input:hover,
+        .register-form .input-group select:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(107, 196, 250, 0.1);
+        }
+        
+        .register-form .input-group input:focus,
+        .register-form .input-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(107, 196, 250, 0.2), 0 0 0 1px rgba(147, 112, 219, 0.1);
+            background-color: white;
+            transform: translateY(-2px);
+        }
+        
+        .register-form .input-group .material-icons {
+            position: absolute;
+            right: 20px;
+            top: 45px;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        
+        .register-form .input-group select + .material-icons {
+            pointer-events: none;
+        }
+        
+        .register-form .input-group .material-icons:hover {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .register-form button[type="submit"] {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s;
+            margin-top: 25px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out 0.8s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .register-form button[type="submit"]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+        
+        .register-form button[type="submit"]:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #7b68ee);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(25, 118, 210, 0.5);
+        }
+        
+        .register-form button[type="submit"]:hover::before {
+            left: 100%;
+        }
+        
+        .register-form button[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+        }
+        
+        .back-login {
+            text-align: center;
+            margin-top: 25px;
+            animation: slideIn 0.6s ease-out 1s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .back-login a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            padding: 8px 16px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .back-login a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(107, 196, 250, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .back-login a:hover {
+            color: var(--secondary);
+            background-color: rgba(107, 196, 250, 0.1);
+            text-decoration: none;
+            transform: translateX(5px);
+        }
+        
+        .back-login a:hover::before {
+            left: 100%;
+        }
+        
+        .back-login a i {
+            margin-right: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .back-login a:hover i {
+            transform: translateX(-3px);
+        }
+        
+        .footer-links {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            animation: slideIn 0.6s ease-out 1.2s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            position: relative;
+            padding: 5px 0;
+        }
+        
+        .footer-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .footer-links a:hover::after {
+            width: 100%;
+        }
+        
+        .footer-links span {
+            margin: 0 12px;
+            color: #e2e8f0;
+        }
+        
+        .password-requirements {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+            padding-left: 5px;
+            animation: slideIn 0.6s ease-out 0.9s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .password-match {
+            font-size: 12px;
+            margin-top: 5px;
+            padding-left: 5px;
+            animation: slideIn 0.6s ease-out 0.95s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .match {
+            color: #4CAF50;
+        }
+        
+        .no-match {
+            color: #F44336;
+        }
+        
+        .two-column {
+            display: flex;
+            gap: 15px;
+            animation: slideIn 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .two-column:nth-child(3) { animation-delay: 0.5s; }
+        .two-column:nth-child(4) { animation-delay: 0.6s; }
+        
+        .two-column .input-group {
+            flex: 1;
+        }
+        
+        /* Make dropdown arrows clickable */
+        select + .material-icons {
+            pointer-events: all !important;
+            cursor: pointer;
+        }
+        
+        /* Terms and HIPAA sections */
+        .terms-section {
+            margin-top: 20px;
+            animation: slideIn 0.6s ease-out 1.1s forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            margin-top: 4px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            color: var(--gray);
+            font-size: 14px;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .checkbox-group label a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 480px) {
+            .register-container {
+                padding: 40px 25px;
+            }
+            
+            .logo h1 {
+                font-size: 30px;
+            }
+            
+            .logo .heartbeat-icon {
+                font-size: 44px;
+            }
+            
+            .floating-element {
+                display: none;
+            }
+            
+            .two-column {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated floating background elements -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+    
+    <div class="register-container">
+        <div class="logo">
+            <!-- Font Awesome heartbeat icon -->
+            <i class="fas fa-heartbeat heartbeat-icon"></i>
+            <h1>CAREALERT</h1>
+            <p>Doctor Registration</p>
+        </div>
+        
+        <!-- Role indicator -->
+        <div class="role-indicator">
+            <i class="fas fa-user-md"></i>
+            <span>Doctor Account Registration</span>
+        </div>
+        
+        <form class="register-form" action="/register" method="POST">
+            <!-- Hidden field for role -->
+            <input type="hidden" id="role" name="role" value="doctor" required>
+            
+            <!-- Doctor Registration Fields -->
+
+            <div class="input-group">
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" placeholder="Enter full name" required>
+                <span class="material-icons">badge</span>
+            </div>
+            
+            <div class="input-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                <span class="material-icons">email</span>
+            </div>
+            
+            <div class="two-column">
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create password" required>
+                    <span class="material-icons" id="togglePassword">visibility</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+                    <span class="material-icons" id="toggleConfirmPassword">visibility</span>
+                </div>
+            </div>
+            
+            <div class="password-match" id="passwordMatch"></div>
+            <div class="password-requirements">Password must be at least 8 characters with letters and numbers</div>
+            
+            <div class="input-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+1 (555) 123-4567" required>
+                <span class="material-icons">phone</span>
+            </div>
+            
+            <div class="two-column">
+                <div class="input-group">
+                    <label for="specialization">Specialization</label>
+                    <select id="specialization" name="specialization" required>
+                        <option value="" disabled selected>Select specialization</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="pulmonology">Pulmonology</option>
+                        <option value="critical_care">Critical Care</option>
+                        <option value="anesthesiology">Anesthesiology</option>
+                        <option value="pediatrics">Pediatrics</option>
+                        <option value="surgery">Surgery</option>
+                        <option value="emergency">Emergency Medicine</option>
+                        <option value="radiology">Radiology</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <span class="material-icons">arrow_drop_down</span>
+                </div>
+                
+                <div class="input-group">
+                    <label for="department">Department</label>
+                    <select id="department" name="department" required>
+                        <option value="" disabled selected>Select department</option>
+                        <option value="icu">Intensive Care Unit (ICU)</option>
+                        <option value="emergency">Emergency Department</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="surgery">Surgery</option>
+                        <option value="pediatrics">Pediatrics</option>
+                        <option value="oncology">Oncology</option>
+                        <option value="orthopedics">Orthopedics</option>
+                        <option value="general">General Medicine</option>
+                    </select>
+                    <span class="material-icons">arrow_drop_down</span>
+                </div>
+            </div>
+            
+            <!-- Terms and HIPAA -->
+            <div class="terms-section">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hipaa" name="hipaa" required>
+                    <label for="hipaa">
+                        I acknowledge HIPAA compliance and patient data confidentiality requirements
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit">Create Account</button>
+            
+            <!-- Back to Login link -->
+            <div class="back-login">
+                <a href="/">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+            
+            <div class="footer-links">
+                <a href="/login">Already have an account?</a>
+                <span>|</span>
+                <a href="/forgot-password">Forgot password?</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+        const confirmPassword = document.querySelector('#confirm_password');
+        const passwordMatch = document.querySelector('#passwordMatch');
+        
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+            this.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 300);
+        });
+        
+        toggleConfirmPassword.addEventListener('click', function() {
+            const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPassword.setAttribute('type', type);
+            this.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+            this.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 300);
+        });
+        
+        // Password matching validation
+        confirmPassword.addEventListener('input', function() {
+            if (password.value === confirmPassword.value && password.value !== '') {
+                passwordMatch.textContent = '✓ Passwords match';
+                passwordMatch.className = 'password-match match';
+            } else if (confirmPassword.value !== '') {
+                passwordMatch.textContent = '✗ Passwords do not match';
+                passwordMatch.className = 'password-match no-match';
+            } else {
+                passwordMatch.textContent = '';
+                passwordMatch.className = 'password-match';
+            }
+        });
+        
+        password.addEventListener('input', function() {
+            if (confirmPassword.value !== '') {
+                confirmPassword.dispatchEvent(new Event('input'));
+            }
+        });
+        
+        // Make dropdown arrows clickable
+        const selectElements = document.querySelectorAll('select');
+        selectElements.forEach(select => {
+            const arrow = select.nextElementSibling;
+            if (arrow && arrow.classList.contains('material-icons')) {
+                arrow.addEventListener('click', function() {
+                    select.focus();
+                    select.click();
+                });
+            }
+        });
+        
+        // Form submission handler
+        document.querySelector('.register-form').addEventListener('submit', function(e) {
+            // Prevent form submission if there are validation errors
+            let isValid = true;
+            let errorMessage = '';
+            
+            // Password validation
+            const passwordValue = document.getElementById('password').value;
+            const confirmPasswordValue = document.getElementById('confirm_password').value;
+            
+            if (passwordValue.length < 8) {
+                isValid = false;
+                errorMessage = 'Password must be at least 8 characters long';
+            } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(passwordValue)) {
+                isValid = false;
+                errorMessage = 'Password must contain both letters and numbers';
+            } else if (passwordValue !== confirmPasswordValue) {
+                isValid = false;
+                errorMessage = 'Passwords do not match';
+            }
+            
+            // Doctor-specific validation
+            const doctorName = document.getElementById('doctor_name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const specialization = document.getElementById('specialization').value;
+            const department = document.getElementById('department').value;
+            
+            if (!doctorName || !email || !phone || !specialization || !department) {
+                isValid = false;
+                errorMessage = 'Please fill all required fields';
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email && !emailRegex.test(email)) {
+                isValid = false;
+                errorMessage = 'Please enter a valid email address';
+            }
+            
+            // Terms validation
+            const termsAccepted = document.getElementById('terms').checked;
+            const hipaaAccepted = document.getElementById('hipaa').checked;
+            
+            if (!termsAccepted) {
+                isValid = false;
+                errorMessage = 'You must agree to the Terms of Service and Privacy Policy';
+            }
+            
+            if (!hipaaAccepted) {
+                isValid = false;
+                errorMessage = 'You must acknowledge HIPAA compliance';
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert(errorMessage);
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+            submitBtn.disabled = true;
+            
+            console.log(`Registration form submitted for doctor`);
+            return true;
+        });
+        
+        // Phone number formatting
+        const phoneInputs = document.querySelectorAll('input[type="tel"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 0) {
+                    value = value.substring(0, 15);
+                    if (value.length <= 3) {
+                        e.target.value = value;
+                    } else if (value.length <= 6) {
+                        e.target.value = '(' + value.substring(0, 3) + ') ' + value.substring(3);
+                    } else {
+                        e.target.value = '(' + value.substring(0, 3) + ') ' + value.substring(3, 6) + '-' + value.substring(6, 10);
+                    }
+                }
+            });
+        });
+        
+        // Add focus animation for inputs
+        const inputs = document.querySelectorAll('.register-form input, .register-form select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add a subtle animation on page load
+        window.addEventListener('load', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s';
+            
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+        
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Trigger all animations
+            setTimeout(() => {
+                document.querySelectorAll('.input-group, .two-column, .terms-section, .footer-links, .password-match, .password-requirements').forEach(el => {
+                    el.style.animationPlayState = 'running';
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>

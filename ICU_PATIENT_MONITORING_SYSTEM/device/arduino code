@@ -1,0 +1,36 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <Wire.h>
+#include "MAX30100_PulseOximeter.h"
+
+const char* ssid = "1234";
+const char* pass = "12345678";
+const char* server = "http://YOUR_SERVER_IP:5000/api/iot/vitals";
+
+PulseOximeter pox;
+float BPM, SpO2;
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, pass);
+  while (WiFi.status()!=WL_CONNECTED) delay(500);
+
+  if (!pox.begin()) while(1);
+}
+
+void loop() {
+  pox.update();
+  BPM = pox.getHeartRate();
+  SpO2 = pox.getSpO2();
+
+  if (WiFi.status()==WL_CONNECTED && BPM>0 && SpO2>0) {
+    HTTPClient http;
+    http.begin(server);
+    http.addHeader("Content-Type","application/json");
+
+    String body = "{\"patient_id\":1,\"bpm\":"+String(BPM)+",\"spo2\":"+String(SpO2)+"}";
+    http.POST(body);
+    http.end();
+  }
+  delay(1000);
+}

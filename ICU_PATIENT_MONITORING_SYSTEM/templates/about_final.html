@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CAREALERT | Intelligent ICU Monitoring</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #f5f0ff 50%, #f8fbff 100%);
+            color: #0f172a;
+            scroll-behavior: smooth;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Floating background elements */
+        .floating-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(107, 196, 250, 0.1) 0%, rgba(147, 112, 219, 0.05) 70%);
+            animation: float 20s infinite linear;
+        }
+
+        .circle-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 10%;
+            animation-delay: -5s;
+            animation-duration: 25s;
+        }
+
+        .circle-3 {
+            width: 120px;
+            height: 120px;
+            bottom: 20%;
+            left: 15%;
+            animation-delay: -10s;
+            animation-duration: 18s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(20px, 30px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 60px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-20px, 30px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        /* ================= LOGO ================= */
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            animation: heartbeat 2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+            5% {
+                transform: scale(1.1);
+            }
+            10% {
+                transform: scale(1);
+            }
+            15% {
+                transform: scale(1.1);
+            }
+            20% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-title {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        /* ================= HEADER ================= */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 18px 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(25, 166, 250, 0.1);
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(147, 112, 219, 0.1);
+        }
+
+        /* ================= NAVIGATION ================= */
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-link {
+            margin: 0 8px;
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+            position: relative;
+            padding: 8px 0;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #19A6FA, #9370DB);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #19A6FA;
+            transform: translateY(-2px);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link.active {
+            color: #19A6FA;
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            width: 100%;
+            animation: underlinePulse 2s infinite;
+        }
+
+        @keyframes underlinePulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* ================= AUTH BUTTONS ================= */
+        .auth-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.4s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(147, 112, 219, 0.4);
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Register Button */
+        .register-btn {
+            background: transparent;
+            border: 2px solid rgba(25, 166, 250, 0.3);
+            color: #334155;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.4s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(147, 112, 219, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .register-btn:hover {
+            border-color: #19A6FA;
+            color: #19A6FA;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(25, 166, 250, 0.2);
+        }
+
+        .register-btn:hover::before {
+            left: 100%;
+        }
+
+        /* ================= HERO SECTION ================= */
+        .hero {
+            padding: 100px 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 50px;
+            background: linear-gradient(135deg, rgba(224, 242, 254, 0.8), rgba(241, 240, 255, 0.8));
+            position: relative;
+            overflow: hidden;
+            min-height: 85vh;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(107, 196, 250, 0.15) 0%, rgba(147, 112, 219, 0.1) 70%);
+            top: -150px;
+            right: -100px;
+            z-index: 0;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        .hero-text {
+            max-width: 550px;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(107, 196, 250, 0.2), rgba(147, 112, 219, 0.15));
+            color: #0d8ae3;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(107, 196, 250, 0.3);
+            animation: badgePulse 3s infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(107, 196, 250, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(107, 196, 250, 0);
+            }
+        }
+
+        .hero-text h1 {
+            font-size: 42px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #0f172a, #0369a1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+        }
+
+        .hero-text h1 span::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, rgba(107, 196, 250, 0.3), rgba(147, 112, 219, 0.2));
+            z-index: -1;
+            border-radius: 4px;
+        }
+
+        .hero-text p {
+            color: #475569;
+            font-size: 16px;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 16px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .primary-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.7s;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(147, 112, 219, 0.4);
+        }
+
+        .primary-btn:hover::before {
+            left: 100%;
+        }
+
+        .hero-image {
+            animation: fadeInRight 0.8s ease-out 0.6s both;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-image img {
+            width: 520px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(25, 166, 250, 0.2);
+            z-index: 1;
+            position: relative;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .hero-image img:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(147, 112, 219, 0.3);
+        }
+
+        /* ================= FEATURES SECTION ================= */
+        .features {
+            padding: 100px 80px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8fbff 0%, #f5f0ff 50%);
+            position: relative;
+        }
+
+        .features h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .features p {
+            font-size: 15px;
+            color: #475569;
+            max-width: 600px;
+            margin: 0 auto 50px;
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: left;
+            box-shadow: 0 10px 30px rgba(25, 166, 250, 0.1);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(107, 196, 250, 0.1);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+        .feature-card:nth-child(4) { animation-delay: 0.4s; }
+        .feature-card:nth-child(5) { animation-delay: 0.5s; }
+        .feature-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #19A6FA, #9370DB);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(147, 112, 219, 0.2);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover .icon {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        .blue { background: linear-gradient(135deg, #e0f2fe, #d4ebff); color: #19A6FA; }
+        .purple { background: linear-gradient(135deg, #e0e7ff, #e6e0ff); color: #9370DB; }
+        .green { background: linear-gradient(135deg, #d1fae5, #ccf7e5); color: #10b981; }
+        .red { background: linear-gradient(135deg, #fee2e2, #fdd8d8); color: #ef4444; }
+        .cyan { background: linear-gradient(135deg, #cffafe, #c2f5fe); color: #0891b2; }
+        .indigo { background: linear-gradient(135deg, #e0e7ff, #d9dfff); color: #4338ca; }
+
+        .feature-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ================= HOW IT WORKS ================= */
+        .how-it-works {
+            padding: 100px 80px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #eef2f7 100%);
+            text-align: center;
+            position: relative;
+        }
+
+        .how-it-works h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .how-it-works > p {
+            color: #475569;
+            font-size: 15px;
+            max-width: 600px;
+            margin: 0 auto 50px;
+            line-height: 1.6;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 60px;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, #19A6FA, #9370DB);
+            z-index: 0;
+            animation: lineFlow 3s ease-in-out infinite;
+        }
+
+        @keyframes lineFlow {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 22%;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(25, 166, 250, 0.1);
+            transition: all 0.4s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(107, 196, 250, 0.1);
+        }
+
+        .step:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(147, 112, 219, 0.2);
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            animation: numberPulse 2s infinite;
+        }
+
+        @keyframes numberPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(147, 112, 219, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(147, 112, 219, 0);
+            }
+        }
+
+        .step h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0f172a;
+        }
+
+        .step p {
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ================= ABOUT PROJECT ================= */
+        .about-project {
+            background: linear-gradient(135deg, #eefaff 0%, #f5f0ff 100%);
+            padding: 100px 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .about-project h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .about-project p {
+            max-width: 850px;
+            margin: 0 auto 20px;
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.8;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .about-project p:nth-child(2) { animation-delay: 0.2s; }
+        .about-project p:nth-child(3) { animation-delay: 0.4s; }
+
+        /* ================= CTA ================= */
+        .cta {
+            background: linear-gradient(135deg, #19A6FA, #9370DB);
+            padding: 100px 20px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            top: -100px;
+            right: -100px;
+            animation: rotate 20s linear infinite;
+        }
+
+        .cta::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            bottom: -80px;
+            left: -80px;
+            animation: rotate 15s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .cta h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .cta p {
+            max-width: 700px;
+            margin: 0 auto 30px;
+            font-size: 15px;
+            line-height: 1.7;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .cta-btn {
+            background: white;
+            background: linear-gradient(135deg, white, #f8f9ff);
+            color: #19A6FA;
+            border: none;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(147, 112, 219, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            color: #9370DB;
+        }
+
+        .cta-btn:hover::before {
+            left: 100%;
+        }
+
+        /* ================= FOOTER ================= */
+        .footer {
+            background: linear-gradient(135deg, #0b1220, #1a1b2e);
+            color: #cbd5e1;
+            padding: 60px 80px 20px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-brand p {
+            margin-top: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #94a3b8;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .footer-logo i {
+            color: #19A6FA;
+            font-size: 24px;
+        }
+
+        .footer-column h4 {
+            font-size: 15px;
+            margin-bottom: 14px;
+            color: #ffffff;
+            position: relative;
+            padding-bottom: 8px;
+        }
+
+        .footer-column h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background: linear-gradient(90deg, #19A6FA, #9370DB);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 3px 0;
+        }
+
+        .footer-column ul li:hover {
+            color: #19A6FA;
+            transform: translateX(5px);
+        }
+
+        /* Bottom bar */
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .powered {
+            opacity: 0.8;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #334155;
+            cursor: pointer;
+            padding: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            color: #19A6FA;
+            transform: rotate(90deg);
+        }
+
+        /* Mobile Authentication Menu */
+        .mobile-auth-menu {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            margin-top: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(147, 112, 219, 0.1);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-auth-menu.show {
+            display: flex;
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 1200px) {
+            .hero-text h1 {
+                font-size: 36px;
+            }
+            
+            .hero-image img {
+                width: 450px;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            header {
+                padding: 16px 30px;
+            }
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 80px 30px;
+                gap: 40px;
+            }
+
+            .hero-text {
+                max-width: 100%;
+            }
+
+            .hero-image img {
+                width: 100%;
+                max-width: 500px;
+            }
+
+            .buttons {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .features {
+                padding: 80px 30px;
+            }
+
+            .how-it-works {
+                padding: 80px 30px;
+            }
+            
+            .steps-container {
+                flex-wrap: wrap;
+                gap: 30px;
+                justify-content: center;
+            }
+            
+            .steps-container::before {
+                display: none;
+            }
+            
+            .step {
+                width: 45%;
+                min-width: 250px;
+            }
+
+            .auth-section {
+                gap: 8px;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.98);
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(25, 166, 250, 0.15);
+                gap: 15px;
+                backdrop-filter: blur(10px);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .auth-section {
+                display: none;
+            }
+
+            .mobile-auth-menu.show {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .step {
+                width: 100%;
+                max-width: 350px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .primary-btn, .register-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-text h1 {
+                font-size: 28px;
+            }
+            
+            .features h1, .how-it-works h2, .about-project h2, .cta h2 {
+                font-size: 28px;
+            }
+            
+            .features, .how-it-works {
+                padding: 60px 20px;
+            }
+            
+            header {
+                padding: 16px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background elements -->
+    <div class="floating-bg">
+        <div class="floating-circle circle-1"></div>
+        <div class="floating-circle circle-2"></div>
+        <div class="floating-circle circle-3"></div>
+    </div>
+
+<!-- ================= NAVBAR ================= -->
+<header id="header">
+    <div class="logo-container" onclick="scrollToSection('home')">
+        <div class="logo-icon">
+            <i class="fas fa-heartbeat"></i>
+        </div>
+        <div class="logo-text">
+            <div class="logo-title">CareAlert</div>
+            <div class="logo-subtitle">ICU Monitoring System</div>
+        </div>
+    </div>
+
+    <nav>
+        <div class="nav-links" id="navLinks">
+            <button class="nav-link" onclick="scrollToSection('home')">Home</button>
+            <button class="nav-link" onclick="scrollToSection('features')">Features</button>
+            <button class="nav-link" onclick="scrollToSection('how-it-works')">How It Works</button>
+            <button class="nav-link" onclick="scrollToSection('about')">About</button>
+        </div>
+
+        <!-- Desktop Authentication Section -->
+        <div class="auth-section">
+            <button class="login-btn" onclick="login()">
+                <i class="fas fa-sign-in-alt"></i>
+                Login
+            </button>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+</header>
+
+<!-- Mobile Authentication Menu (Hidden on Desktop) -->
+<div class="mobile-auth-menu" id="mobileAuthMenu">
+    <button class="login-btn" onclick="login()" style="width: 100%; text-align: center;">
+        <i class="fas fa-sign-in-alt"></i>
+        Login to Account
+    </button>
+    <div class="mobile-register-options">
+        <h4 style="font-size: 14px; color: #64748b; margin-bottom: 10px;">Register As:</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <a href="/register" class="dropdown-item" style="padding: 10px; font-size: 13px; text-decoration: none; color: #334155; background: #f8fafc; border-radius: 8px; text-align: center; transition: all 0.3s ease;">
+                <i class="fas fa-user"></i>
+                Patient
+            </a>
+            <a href="/register-doctor" class="dropdown-item" style="padding: 10px; font-size: 13px; text-decoration: none; color: #334155; background: #f8fafc; border-radius: 8px; text-align: center; transition: all 0.3s ease;">
+                <i class="fas fa-user-md"></i>
+                Doctor
+            </a>
+            <a href="/register-nurse" class="dropdown-item" style="padding: 10px; font-size: 13px; text-decoration: none; color: #334155; background: #f8fafc; border-radius: 8px; text-align: center; transition: all 0.3s ease;">
+                <i class="fas fa-user-nurse"></i>
+                Nurse
+            </a>
+            <a href="/admin-register" class="dropdown-item" style="padding: 10px; font-size: 13px; text-decoration: none; color: #334155; background: #f8fafc; border-radius: 8px; text-align: center; transition: all 0.3s ease;">
+                <i class="fas fa-user-shield"></i>
+                Admin
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="home">
+    <div class="hero-text">
+       
+        <h1>
+            Next-Generation <br>
+            <span>ICU Patient Monitoring</span>
+        </h1>
+        <p>
+            CareAlert revolutionizes intensive care with AI-powered health risk prediction,
+            early warning systems, and real-time IoT sensor integration. Monitor multiple
+            patients simultaneously with intelligent alerts and comprehensive analytics.
+        </p>
+        <div class="buttons">
+            <a href="{{ url_for('login_page') }}">
+                <button class="primary-btn">
+                    <i class="fas fa-tachometer-alt"></i>
+                    View Dashboard
+                </button>
+            </a>
+            <button class="register-btn" onclick="showRegisterOptions()">
+                <i class="fas fa-user-plus"></i>
+                Register
+            </button>
+        </div>
+    </div>
+    <div class="hero-image">
+        <img src="https://readdy.ai/api/search-image?query=modern%20hospital%20intensive%20care%20unit%20with%20advanced%20medical%20monitoring%20equipment%20and%20digital%20displays%20showing%20patient%20vital%20signs%20in%20a%20clean%20professional%20healthcare%20environment%20with%20blue%20and%20white%20color%20scheme&width=600&height=500&seq=hero-icu-1&orientation=landscape" alt="ICU Monitoring">
+    </div>
+</section>
+
+<!-- ================= ADVANCED FEATURES ================= -->
+<section class="features" id="features">
+    <h1>Advanced Features</h1>
+    <p>
+        Experience next-generation ICU monitoring with intelligent features designed for
+        critical care excellence
+    </p>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="icon blue"><i class="fas fa-tachometer-alt"></i></div>
+            <h3>Real-Time Dashboard</h3>
+            <p>Live monitoring of heart rate, SpO₂, temperature, and blood pressure with
+               color-coded vitals for instant status recognition.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon purple"><i class="fas fa-user-injured"></i></div>
+            <h3>Patient Profiles</h3>
+            <p>Detailed patient records including demographics, diagnosis, bed assignment,
+               and current risk assessment.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon green"><i class="fas fa-brain"></i></div>
+            <h3>Health Risk Prediction</h3>
+            <p>AI-based analysis of vital trends to predict low, medium, or high risk levels
+               before emergencies occur.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon red"><i class="fas fa-bell"></i></div>
+            <h3>Early Warning System</h3>
+            <p>Predictive alerts that notify medical staff before thresholds are crossed,
+               ensuring timely intervention.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon cyan"><i class="fas fa-chart-line"></i></div>
+            <h3>Vitals Trend Analysis</h3>
+            <p>Interactive charts displaying patient vitals over 1, 6, or 24 hours for
+               continuous assessment.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon indigo"><i class="fas fa-file-medical-alt"></i></div>
+            <h3>Auto Report Generator</h3>
+            <p>Automatic generation of ICU reports and patient summaries with downloadable
+               documentation.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="how-it-works" id="how-it-works">
+    <h2>How CareAlert Works</h2>
+    <p>Our intelligent system follows a streamlined process to ensure optimal patient monitoring and timely interventions.</p>
+    <div class="steps-container">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h4>Data Collection</h4>
+            <p>IoT sensors continuously collect patient vital signs including heart rate, temperature, and blood pressure in real-time.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h4>Data Processing</h4>
+            <p>ESP32 microcontroller processes raw sensor data, filters noise, and prepares it for transmission to the cloud server.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h4>Data Transmission</h4>
+            <p>Processed data is transmitted via WiFi to the cloud server for real-time monitoring and analysis.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <h4>Dashboard Updates</h4>
+            <p>Real-time updates on dashboard with AI-powered risk assessment and alerts for medical staff.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ================= ABOUT PROJECT ================= -->
+<section class="about-project" id="about">
+    <h2>About This Project</h2>
+    <p>
+        CareAlert is a comprehensive project that demonstrates the
+        integration of IoT technology, artificial intelligence, and modern web
+        development to solve real-world healthcare challenges. This intelligent
+        ICU monitoring system goes beyond traditional dashboards by incorporating
+        predictive analytics, early warning capabilities, and automated reporting
+        features.
+    </p>
+    <p>
+        The system is designed to assist healthcare professionals in making informed
+        decisions through real-time monitoring, trend analysis. With its intuitive 
+        interface and advanced features, CareAlert
+        represents the future of intensive care unit patient monitoring.
+    </p>
+</section>
+
+<!-- ================= CALL TO ACTION ================= -->
+<section class="cta">
+    <h2>Ready to Experience Smart ICU Monitoring?</h2>
+    <p>
+        Access the dashboard to explore real-time patient monitoring,
+        and comprehensive analytics.
+    </p>
+    <a href="{{ url_for('login_page') }}">
+        <button class="cta-btn">
+            <i class="fas fa-rocket"></i>
+            Access Dashboard
+        </button>
+    </a>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-brand">
+            <div class="footer-logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>CARE+</span>
+            </div>
+            <p>
+                Intelligent IoT-Based ICU Patient Monitoring
+                System for next-generation healthcare.
+            </p>
+        </div>
+        <div class="footer-column">
+            <h4>Features</h4>
+            <ul>
+                <li>Real-Time Monitoring</li>
+                <li>Risk Prediction</li>
+                <li>Early Warnings</li>
+                <li>Auto Reports</li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Technology</h4>
+            <ul>
+                <li>React & TypeScript</li>
+                <li>Python Flask</li>
+                <li>Chart.js</li>
+                <li>IoT Integration</li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h4>Project</h4>
+            <ul>
+                <li onclick="scrollToSection('about')" style="cursor: pointer;">About</li>
+                <li onclick="login()" style="cursor: pointer;">Login</li>
+                <li onclick="showRegisterOptions()" style="cursor: pointer;">Register</li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 CareAlert. Final Year Diploma Project. All rights reserved.</span>
+    </div>
+</footer>
+
+<script>
+    // Initialize floating animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const circles = document.querySelectorAll('.floating-circle');
+        circles.forEach((circle, index) => {
+            circle.style.animationDelay = `${index * 2}s`;
+        });
+        
+        // Set current year in footer
+        const yearSpan = document.querySelector('.footer-bottom span');
+        if (yearSpan && yearSpan.textContent.includes('2025')) {
+            const currentYear = new Date().getFullYear();
+            yearSpan.textContent = yearSpan.textContent.replace('2025', currentYear);
+        }
+        
+        // Initialize active nav link
+        updateActiveNavLink();
+        
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.feature-card, .step, .hero-text, .features h1, .features p').forEach(el => {
+            observer.observe(el);
+        });
+    });
+    
+    // Function to scroll to specific section with smooth behavior
+    function scrollToSection(sectionId) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            const headerHeight = document.getElementById('header').offsetHeight;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+            
+            // Close mobile menu if open
+            document.getElementById('navLinks').classList.remove('active');
+            document.getElementById('mobileAuthMenu').classList.remove('show');
+            
+            // Reset mobile menu icon
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+            }
+        }
+    }
+
+    // Update active nav link based on scroll position
+    function updateActiveNavLink() {
+        const sections = ['home', 'features', 'how-it-works', 'about'];
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        let currentSection = '';
+        sections.forEach(section => {
+            const element = document.getElementById(section);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                if (rect.top <= 150 && rect.bottom >= 150) {
+                    currentSection = section;
+                }
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('onclick')?.includes(currentSection)) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+    const mobileAuthMenu = document.getElementById('mobileAuthMenu');
+
+    if(mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            mobileAuthMenu.classList.toggle('show');
+            
+            // Change icon
+            const icon = this.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('nav') && !event.target.closest('.mobile-menu-btn')) {
+            navLinks.classList.remove('active');
+            mobileAuthMenu.classList.remove('show');
+            
+            // Reset mobile menu icon
+            if (mobileMenuBtn) {
+                mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+            }
+        }
+    });
+
+    // Add scroll event listener for active nav link
+    window.addEventListener('scroll', function() {
+        updateActiveNavLink();
+        
+        // Header scroll effect
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.style.padding = '12px 80px';
+            header.style.boxShadow = '0 8px 30px rgba(25, 166, 250, 0.15)';
+            header.style.background = 'rgba(255, 255, 255, 0.98)';
+        } else {
+            header.style.padding = '18px 80px';
+            header.style.boxShadow = '0 4px 20px rgba(25, 166, 250, 0.1)';
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+        }
+    });
+
+    function login() {
+        window.location.href = "/login";
+    }
+    
+    function showRegisterOptions() {
+        const mobileAuthMenu = document.getElementById('mobileAuthMenu');
+        const navLinks = document.getElementById('navLinks');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        
+        // Show mobile auth menu
+        mobileAuthMenu.classList.add('show');
+        navLinks.classList.remove('active');
+        
+        // Change mobile menu icon
+        if (mobileMenuBtn) {
+            mobileMenuBtn.querySelector('i').className = 'fas fa-times';
+        }
+        
+        // Scroll to mobile auth menu if on mobile
+        if (window.innerWidth <= 992) {
+            mobileAuthMenu.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            // On desktop, show a modal or redirect to registration page
+            window.location.href = "/register";
+        }
+    }
+
+    // Close dropdowns on window resize
+    window.addEventListener('resize', function() {
+        // Close mobile menus on resize to desktop
+        if (window.innerWidth > 992) {
+            document.getElementById('navLinks').classList.remove('active');
+            document.getElementById('mobileAuthMenu').classList.remove('show');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.querySelector('i').className = 'fas fa-bars';
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
