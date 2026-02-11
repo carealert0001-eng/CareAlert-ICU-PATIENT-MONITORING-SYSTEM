@@ -930,14 +930,14 @@
         </div>
     </div>
 
-    <div class="header-right">
-        <div class="doctor-info">
-            <div class="doctor-avatar">DW</div>
-            <div class="doctor-details">
-                <h4>Dr. David Wilson</h4>
-                <p>ICU Chief Specialist</p>
-            </div>
-        </div>
+    <div class="doctor-info">
+    <div class="doctor-avatar" id="doctorAvatar">--</div>
+    <div class="doctor-details">
+        <h4 id="doctorName">Loading...</h4>
+        <p id="doctorDept">Loading...</p>
+    </div>
+</div>
+
         <button class="logout-btn" onclick="showLogoutConfirmation()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
@@ -953,7 +953,7 @@
             <div class="patient-main">
                 <div class="patient-avatar">LW</div>
                 <div class="patient-info">
-                    <h1>Luke Wilson</h1>
+                    <h1>Patient 1</h1>
                 </div>
             </div>
         </div>
@@ -1266,6 +1266,36 @@ window.addEventListener("DOMContentLoaded", () => {
     fetchVitals();
     setInterval(fetchVitals, 3000); // REAL-TIME
 });
+
+async function loadDoctorProfile() {
+    try {
+        const res = await fetch("/api/profile");
+        const data = await res.json();
+
+        if (data.role !== "doctor") return;
+
+        document.getElementById("doctorName").innerText =
+            "Dr. " + data.full_name;
+
+        document.getElementById("doctorDept").innerText =
+            data.specialization + " • " + data.department;
+
+        // Avatar initials
+        const initials = data.full_name
+            .split(" ")
+            .map(n => n[0])
+            .join("")
+            .toUpperCase();
+
+        document.getElementById("doctorAvatar").innerText = initials;
+
+    } catch (err) {
+        console.error("Profile load failed", err);
+    }
+}
+
+loadDoctorProfile();
+
 </script>
 
 </body>
