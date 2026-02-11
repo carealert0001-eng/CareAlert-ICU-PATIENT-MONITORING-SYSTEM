@@ -2,11 +2,14 @@ from flask import Flask, jsonify, render_template, request, redirect, url_for, s
 from flask_bcrypt import Bcrypt
 import mysql.connector
 import requests
+import threading
+import time
 
 app = Flask(__name__)
 app.secret_key = "carealert_secret_key"
 bcrypt = Bcrypt(app)
 
+# ------------------ BLYNK CONFIG ------------------
 BLYNK_TOKEN = "g5T9QmHh4Kky-1EkUJbCEFr5RiTXGsGo"
 BLYNK_URL = "https://blynk.cloud/external/api/get"
 
@@ -22,8 +25,87 @@ def get_db():
         host="localhost",
         user="root",
         password="Okmysqlpass@12",
-        database="carealert"
+        database="carealert2"
     )
+
+# ------------------ PATIENT HANDLING ------------------
+def get_or_create_patient_id():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    # 1. Try existing patient
+    cursor.execute("SELECT id FROM patients LIMIT 1")
+    row = cursor.fetchone()
+
+    if row:
+        cursor.close()
+        conn.close()
+        return row[0]
+
+    # 2. Get any user
+    cursor.execute("SELECT id FROM users LIMIT 1")
+    user = cursor.fetchone()
+
+    if not user:
+        cursor.close()
+        conn.close()
+        print("No user found. Waiting...")
+        return None
+
+    user_id = user[0]
+
+    # 3. Auto-create patient
+    cursor.execute("""
+        INSERT INTO patients (user_id, device_token)
+        VALUES (%s, %s)
+    """, (user_id, "AUTO_DEVICE_001"))
+
+    conn.commit()
+
+    cursor.execute("SELECT id FROM patients LIMIT 1")
+    patient_id = cursor.fetchone()[0]
+
+    cursor.close()
+    conn.close()
+
+    print(f"[AUTO] Patient created with ID {patient_id}")
+    return patient_id
+
+# ------------------ SAVE READINGS ------------------
+def save_readings(hr, spo2, temp):
+    patient_id = get_or_create_patient_id()
+    if not patient_id:
+        print("No patient found in DB. Waiting...")
+        return
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        INSERT INTO readings (patient_id, heart_rate, spo2, temperature)
+        VALUES (%s, %s, %s, %s)
+    """, (patient_id, hr, spo2, temp))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    print(f"[SAVED] Patient:{patient_id} HR:{hr} SpO2:{spo2} Temp:{temp}")
+
+# ------------------ BACKGROUND TASK ------------------
+def blynk_data_scheduler():
+    while True:
+        try:
+            hr = float(get_blynk_data("V0"))
+            spo2 = float(get_blynk_data("V1"))
+            temp = float(get_blynk_data("V2"))
+
+            save_readings(hr, spo2, temp)
+
+        except Exception as e:
+            print("Error saving Blynk data:", e)
+
+        time.sleep(10)
 
 # ------------------ PAGES ------------------
 @app.route("/")
@@ -33,16 +115,14 @@ def about_page():
 @app.route("/dashboard")
 def dashboard():
     if "user_id" not in session:
-        return redirect(url_for("login"))
+        return redirect(url_for("login_page"))
     return render_template("dashboard.html")
 
 # ------------------ REGISTER ------------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        full_name = request.form.get("full_name")
-
-        #full_name = request.form["full_name"]
+        full_name = request.form.get("full_name", "")
         email = request.form["email"]
         phone = request.form["phone"]
         role = request.form["role"]
@@ -60,25 +140,15 @@ def register():
         conn = get_db()
         cursor = conn.cursor()
 
-
-        full_name = request.form.get("full_name", "").strip()
-
-        if not full_name:
-            flash("Full name is required")
-            return redirect(url_for("register"))
-        
-
-
-        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        cursor.execute("SELECT id FROM users WHERE email=%s", (email,))
         if cursor.fetchone():
-            flash("Email already registered. Please login.")
+            flash("Email already registered")
             cursor.close()
             conn.close()
             return redirect(url_for("login_page"))
 
         cursor.execute("""
-            INSERT INTO users
-            (full_name, email, password_hash, phone, specialization, department, role)
+            INSERT INTO users (full_name, email, password_hash, phone, specialization, department, role)
             VALUES (%s,%s,%s,%s,%s,%s,%s)
         """, (
             full_name,
@@ -94,10 +164,32 @@ def register():
         cursor.close()
         conn.close()
 
-        flash("Registration successful! Please login.")
+        flash("Registration successful")
         return redirect(url_for("login_page"))
 
     return render_template("register.html")
+
+#------------------Profile------------------
+@app.route("/api/profile")
+def profile_api():
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("""
+        SELECT full_name, specialization, department, role
+        FROM users
+        WHERE id = %s
+    """, (session["user_id"],))
+
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    return jsonify(user)
+
 
 # ------------------ LOGIN ------------------
 @app.route("/login", methods=["GET", "POST"])
@@ -129,6 +221,7 @@ def logout():
     session.clear()
     return redirect(url_for("login_page"))
 
+# ------------------ API FOR LIVE DATA ------------------
 @app.route("/api/data")
 def fetch_blynk_data():
     if "user_id" not in session:
@@ -141,30 +234,14 @@ def fetch_blynk_data():
             "temperature": float(get_blynk_data("V2"))
         }
     except:
-        data = {
-            "heart_rate": 0,
-            "spo2": 0,
-            "temperature": 0
-        }
+        data = {"heart_rate": 0, "spo2": 0, "temperature": 0}
 
     return jsonify(data)
 
-#--------------Add data in mysql-------------
-
-def save_readings(hr, spo2, temp):
-    conn = get_db()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        INSERT INTO readings (heart_rate, spo2, temperature)
-        VALUES (%s, %s, %s)
-    """, (hr, spo2, temp))
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-
 # ------------------ RUN ------------------
 if __name__ == "__main__":
-    app.run(debug=True)
+    t = threading.Thread(target=blynk_data_scheduler)
+    t.daemon = True
+    t.start()
+
+    app.run(debug=True, use_reloader=False)
